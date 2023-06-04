@@ -31,6 +31,7 @@ export default {
   },
 
   methods: {
+    // link button action
     redirectToLogin() {
       this.showWelcome = false
       this.$router.push({ name: 'login' })
