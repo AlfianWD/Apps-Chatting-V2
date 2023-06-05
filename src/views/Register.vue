@@ -3,24 +3,27 @@
 <template>
   <div class="view">
     <div class="card">
-      <h3>Login</h3>
+      <h3>Register</h3>
       <form>
-        <div class="containerr-x mb-3">
-          <input type="text" placeholder="Username or Email" />
+        <div class="containerr-y mb-3">
+          <input type="text" placeholder="Username" />
         </div>
-        <div class="containerr-x mb-3">
+        <div class="containerr-y mb-3">
+          <input type="email" placeholder="Email" />
+        </div>
+        <div class="containerr-y mb-3">
           <input type="Password" placeholder="Password" />
-          <div class="containerr-forgot">
-            <p><a href="">Forgot Password ?</a></p>
-          </div>
         </div>
-        <div class="containerr-button">
-          <button @click="" :class="['btn btn-outline-danger']">Mulai</button>
+        <div class="containerr-y mb-3">
+          <input type="Password" placeholder="Re-Password" />
         </div>
-        <div class="containerr-a mb-3">
+        <div class="containerr-buttonn">
+          <button @click="" :class="['btn btn-outline-danger']">Create</button>
+        </div>
+        <div class="containerr-b mb-3">
           <h6>
-            Don't have account?
-            <a href="/register">Create your account</a>
+            Have account?
+            <a href="/login">Login</a>
           </h6>
         </div>
       </form>
@@ -37,16 +40,16 @@
 }
 .card {
   position: fixed;
-  transform: translate(-50%, 20%);
+  transform: translate(-50%, 10%);
   left: 50%;
   top: 50%;
   width: 450px;
-  padding: 50px;
+  padding: 40px;
   box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.3);
   border-radius: 35px;
 
   h3 {
-    letter-spacing: 4px;
+    letter-spacing: 1px;
     font-family: 'Raleway', sans-serif;
     text-align: center;
     text-transform: uppercase;
@@ -54,7 +57,7 @@
   }
 }
 
-.containerr-x {
+.containerr-y {
   margin-left: 30px;
   margin-right: 30px;
 
@@ -68,20 +71,9 @@
     color: #000000;
     border-bottom: 1px solid #000000;
   }
-
-  .containerr-forgot {
-    p {
-      text-align: right;
-      font-size: 14px;
-
-      a {
-        text-decoration: none;
-      }
-    }
-  }
 }
 
-.containerr-a {
+.containerr-b {
   margin-top: 25px;
 
   h6 {
@@ -95,7 +87,7 @@
   }
 }
 
-.containerr-button {
+.containerr-buttonn {
   margin-left: 45px;
   margin-right: 45px;
   margin-bottom: 25px;

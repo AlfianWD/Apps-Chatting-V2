@@ -1,8 +1,8 @@
 <!-- Created By Alfian Wahyu -->
 
 <template>
-  <div class="view">
-    <div class="card">
+  <div class="views">
+    <div class="cards">
       <h3>Login</h3>
       <form>
         <div class="containerr-x mb-3">
@@ -31,22 +31,23 @@
 <script></script>
 
 <style lang="scss">
-.view {
+.views {
   min-height: 100vh;
   background-image: linear-gradient(to bottom right, rgb(245, 66, 101) 0%, rgb(189, 28, 60) 100%);
 }
-.card {
+.cards {
+  background-color: white;
   position: fixed;
-  transform: translate(-50%, 20%);
+  transform: translate(-50%, -50%);
   left: 50%;
   top: 50%;
   width: 450px;
   padding: 50px;
   box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.3);
-  border-radius: 35px;
+  border-radius: 5px;
 
   h3 {
-    letter-spacing: 4px;
+    letter-spacing: 1px;
     font-family: 'Raleway', sans-serif;
     text-align: center;
     text-transform: uppercase;
