@@ -1,9 +1,9 @@
 <template>
-  <div id="app">
-    <main>
+  <div class="view">
+    <div id="app">
       <!-- Menampilkan view file yang dirout -->
       <router-view></router-view>
-    </main>
+    </div>
   </div>
 </template>
 
