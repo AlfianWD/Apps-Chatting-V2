@@ -1,35 +1,13 @@
-# chat_apps_v2
+# Website_Apps-Chatting-V2
+Pembuat : Alfian Wahyu Dzulkarnaen
 
-This template should help get you started developing with Vue 3 in Vite.
+Website ini merupakan sebuah kembangan dari repo website apps chatting yang simple dengan menngunakan vue. Di versi 2.0 ini website apps chat ini menyajikan fitur login, register dan add contact.
 
-## Recommended IDE Setup
+tool yang terdapat pada website ini, yaitu ;
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+1. HTML
+2. CSS
+3. JS
+4. Vue
+5. Vite
+6. Npm
