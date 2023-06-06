@@ -1,7 +1,7 @@
 <!-- Created By Alfian Wahyu -->
 
 <template>
-  <div class="views">
+  <div class="tes">
     <div class="cards">
       <h3>Login</h3>
       <form>
@@ -31,7 +31,7 @@
 <script></script>
 
 <style lang="scss">
-.views {
+.tes {
   min-height: 100vh;
   background-image: linear-gradient(to bottom right, rgb(245, 66, 101) 0%, rgb(189, 28, 60) 100%);
 }

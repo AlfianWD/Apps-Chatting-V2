@@ -1,24 +1,24 @@
 <!-- Created By Alfian Wahyu -->
 
 <template>
-  <div class="view">
+  <div class="test">
     <div class="card">
       <h3>Register</h3>
-      <form>
+      <form class="form-login" @submit.prevent="registerUser">
         <div class="containerr-y mb-3">
-          <input type="text" placeholder="Username" />
+          <input v-model="username" type="text" placeholder="Username" />
         </div>
         <div class="containerr-y mb-3">
-          <input type="email" placeholder="Email" />
+          <input v-model="email" type="email" placeholder="Email" />
         </div>
         <div class="containerr-y mb-3">
-          <input type="Password" placeholder="Password" />
+          <input v-model="password" type="Password" placeholder="Password" />
         </div>
         <div class="containerr-y mb-3">
-          <input type="Password" placeholder="Re-Password" />
+          <input v-model="confirmPassword" type="Password" placeholder="Re-Password" />
         </div>
         <div class="containerr-buttonn">
-          <button @click="" :class="['btn btn-outline-danger']">Create</button>
+          <button type="submit" :class="['btn btn-outline-danger']">Create</button>
         </div>
         <div class="containerr-b mb-3">
           <h6>
@@ -31,10 +31,52 @@
   </div>
 </template>
 
-<script></script>
+<script>
+import { getDatabase, ref as dbRef, push, set } from 'firebase/database'
+
+export default {
+  data() {
+    return {
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: ''
+    }
+  },
+
+  methods: {
+    async registerUser() {
+      // Mengecek apakah password dan konfirmasi password sama
+      if (this.password !== this.confirmPassword) {
+        alert('Password tidak sama')
+        return
+      }
+
+      // Inisialisasi database
+      const db = getDatabase()
+      const usersRef = dbRef(db, 'users')
+
+      // Menambahkan data user ke dalam database
+      await push(usersRef, {
+        username: this.username,
+        email: this.email,
+        password: this.password
+      })
+
+      // Reset input field setelah mensubmit
+      this.username = ''
+      this.email = ''
+      this.password = ''
+      this.confirmPassword = ''
+
+      alert('Registration successful')
+    }
+  }
+}
+</script>
 
 <style lang="scss">
-.view {
+.test {
   min-height: 100vh;
   background-image: linear-gradient(to bottom right, rgb(245, 66, 101) 0%, rgb(189, 28, 60) 100%);
 }
