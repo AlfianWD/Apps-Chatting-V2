@@ -4,18 +4,18 @@
   <div class="tes">
     <div class="cards">
       <h3>Login</h3>
-      <form>
+      <form @submit.prevent="loginUser">
         <div class="containerr-x mb-3">
-          <input type="text" placeholder="Username or Email" />
+          <input v-model="username" type="text" placeholder="Username" />
         </div>
         <div class="containerr-x mb-3">
-          <input type="Password" placeholder="Password" />
+          <input v-model="password" type="Password" placeholder="Password" />
           <div class="containerr-forgot">
             <p><a href="">Forgot Password ?</a></p>
           </div>
         </div>
         <div class="containerr-button">
-          <button @click="" :class="['btn btn-outline-danger']">Mulai</button>
+          <button type="submit" :class="['btn btn-outline-danger']">Mulai</button>
         </div>
         <div class="containerr-a mb-3">
           <h6>
@@ -28,7 +28,46 @@
   </div>
 </template>
 
-<script></script>
+<script>
+import { db } from '../assets/js/firebase.js'
+import { ref as dbRef, get, orderByChild, equalTo, query } from 'firebase/database'
+
+export default {
+  data() {
+    return {
+      username: '',
+      password: ''
+    }
+  },
+
+  methods: {
+    async loginUser() {
+      try {
+        const usersRef = dbRef(db, 'users')
+        const queryRef = query(usersRef, orderByChild('username'), equalTo(this.username))
+        const snapshot = await get(queryRef)
+
+        if (snapshot.exists()) {
+          const userData = snapshot.val()
+          const userKey = Object.keys(userData)[0]
+          const user = userData[userKey]
+
+          if (user.password === this.password) {
+            alert('Login berhasil')
+            this.$router.push('/')
+          } else {
+            alert('Login gagal: Password salah')
+          }
+        } else {
+          alert('Login gagal: Username tidak ditemukan')
+        }
+      } catch (error) {
+        alert(error.message)
+      }
+    }
+  }
+}
+</script>
 
 <style lang="scss">
 .tes {

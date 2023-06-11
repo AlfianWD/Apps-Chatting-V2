@@ -15,6 +15,13 @@ const routes = [
     path: '/login',
     name: 'login',
     component: Login
+    // childern: [
+    //   {
+    //     path: '/home',
+    //     name: 'welcome',
+    //     component: Welcom
+    //   }
+    // ]
   },
 
   {

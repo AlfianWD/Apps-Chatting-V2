@@ -3,16 +3,18 @@ import { initializeApp } from 'firebase/app'
 import { getDatabase } from 'firebase/database'
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDWumfZIAXT7pO5TabXCpmJ5swOAoxCuSM',
-  authDomain: 'chats-app-v2.firebaseapp.com',
-  projectId: 'chats-app-v2',
-  storageBucket: 'chats-app-v2.appspot.com',
-  messagingSenderId: '896139595881',
-  appId: '1:896139595881:web:1ad6747b7caa47f04c92f8'
+  apiKey: 'AIzaSyC_-6eXs4rF6Nb4O-AbAKIgHJDZMGQrU6k',
+  authDomain: 'chats-apps-v2.firebaseapp.com',
+  projectId: 'chats-apps-v2',
+  storageBucket: 'chats-apps-v2.appspot.com',
+  messagingSenderId: '733484297151',
+  appId: '1:733484297151:web:389a779e72764f82bb8f0a'
 }
 
 // Inisialisasi Firebase
 const firebaseApp = initializeApp(firebaseConfig)
 
 // Export instance database
-export const db = getDatabase(firebaseApp)
+const db = getDatabase(firebaseApp)
+
+export { db }

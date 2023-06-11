@@ -6,10 +6,10 @@
       <h3>Register</h3>
       <form class="form-login" @submit.prevent="registerUser">
         <div class="containerr-y mb-3">
-          <input v-model="username" type="text" placeholder="Username" />
+          <input v-model="name" type="text" placeholder="Name" />
         </div>
         <div class="containerr-y mb-3">
-          <input v-model="email" type="email" placeholder="Email" />
+          <input v-model="username" type="text" placeholder="Username" />
         </div>
         <div class="containerr-y mb-3">
           <input v-model="password" type="Password" placeholder="Password" />
@@ -37,8 +37,8 @@ import { getDatabase, ref as dbRef, push, set } from 'firebase/database'
 export default {
   data() {
     return {
+      name: '',
       username: '',
-      email: '',
       password: '',
       confirmPassword: ''
     }
@@ -58,14 +58,14 @@ export default {
 
       // Menambahkan data user ke dalam database
       await push(usersRef, {
+        name: this.name,
         username: this.username,
-        email: this.email,
         password: this.password
       })
 
       // Reset input field setelah mensubmit
+      this.name = ''
       this.username = ''
-      this.email = ''
       this.password = ''
       this.confirmPassword = ''
 
