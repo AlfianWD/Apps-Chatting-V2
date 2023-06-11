@@ -18,7 +18,9 @@
           <input v-model="confirmPassword" type="Password" placeholder="Re-Password" />
         </div>
         <div class="containerr-buttonn">
-          <button type="submit" :class="['btn btn-outline-danger']">Create</button>
+          <button type="submit" :class="['btn btn-outline-danger']" :disabled="isRegistering">
+            {{ isRegistering ? 'Creating...' : 'Create' }}
+          </button>
         </div>
         <div class="containerr-b mb-3">
           <h6>
@@ -40,7 +42,8 @@ export default {
       name: '',
       username: '',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      isRegistering: false
     }
   },
 
@@ -51,6 +54,14 @@ export default {
         alert('Password tidak sama')
         return
       }
+
+      // Mengecek apakah ada input form yang kosong
+      if (!this.name || !this.username || !this.password || !this.confirmPassword) {
+        alert('Harap isi form terlebih dahulu')
+        return
+      }
+      // Menonaktifkan tombol create
+      this.isRegistering = true
 
       // Inisialisasi database
       const db = getDatabase()
@@ -68,6 +79,9 @@ export default {
       this.username = ''
       this.password = ''
       this.confirmPassword = ''
+
+      // Mengaktifkan kembali tombol register dan mengembalikan teks tombol ke "Create"
+      this.isRegistering = false
 
       alert('Registration successful')
     }
