@@ -1,6 +1,7 @@
 import * as firebase from 'firebase/app'
 import { initializeApp } from 'firebase/app'
 import { getDatabase } from 'firebase/database'
+import { getAuth } from 'firebase/auth'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyC_-6eXs4rF6Nb4O-AbAKIgHJDZMGQrU6k',
@@ -17,4 +18,7 @@ const firebaseApp = initializeApp(firebaseConfig)
 // Export instance database
 const db = getDatabase(firebaseApp)
 
-export { db }
+// Export instance Auth
+const auth = getAuth(firebaseApp)
+
+export { db, auth }

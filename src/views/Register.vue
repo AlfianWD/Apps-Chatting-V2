@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import { getDatabase, ref as dbRef, push, set } from 'firebase/database'
+import { getDatabase, ref as dbRef, push } from 'firebase/database'
 
 export default {
   data() {
@@ -60,6 +60,7 @@ export default {
         alert('Harap isi form terlebih dahulu')
         return
       }
+
       // Menonaktifkan tombol create
       this.isRegistering = true
 

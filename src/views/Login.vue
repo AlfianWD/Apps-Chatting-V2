@@ -15,7 +15,9 @@
           </div>
         </div>
         <div class="containerr-button">
-          <button type="submit" :class="['btn btn-outline-danger']">Mulai</button>
+          <button type="submit" :class="['btn btn-outline-danger']" :disabled="loading">
+            Mulai
+          </button>
         </div>
         <div class="containerr-a mb-3">
           <h6>
@@ -25,48 +27,62 @@
         </div>
       </form>
     </div>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import { db } from '../assets/js/firebase.js'
-import { ref as dbRef, get, orderByChild, equalTo, query } from 'firebase/database'
+import { defineComponent, ref } from 'vue'
 
-export default {
-  data() {
-    return {
-      username: '',
-      password: ''
-    }
-  },
+import { useRouter } from 'vue-router'
 
-  methods: {
-    async loginUser() {
+// Import useAuthStore from auth
+import { useAuthStore } from '../assets/js/auth'
+
+export default defineComponent({
+  name: 'Login',
+  setup() {
+    const router = useRouter()
+    const authStore = useAuthStore()
+
+    const username = ref('')
+    const password = ref('')
+    const loading = ref(false)
+
+    const loginUser = async () => {
       try {
-        const usersRef = dbRef(db, 'users')
-        const queryRef = query(usersRef, orderByChild('username'), equalTo(this.username))
-        const snapshot = await get(queryRef)
+        loading.value = true
+        const loginSuccess = await authStore.login({
+          username: username.value,
+          password: password.value
+        })
 
-        if (snapshot.exists()) {
-          const userData = snapshot.val()
-          const userKey = Object.keys(userData)[0]
-          const user = userData[userKey]
-
-          if (user.password === this.password) {
-            alert('Login berhasil')
-            this.$router.push('/')
-          } else {
-            alert('Login gagal: Password salah')
-          }
+        if (loginSuccess) {
+          // Login successful
+          alert('Login successful')
+          // Redirect to the desired page after login
+          router.push({ path: '/home' })
         } else {
-          alert('Login gagal: Username tidak ditemukan')
+          // Login failed
+          alert('Login failed')
         }
       } catch (error) {
-        alert(error.message)
+        console.error(error)
+        alert('An error occurred during login')
+      } finally {
+        loading.value = false
       }
     }
+
+    return {
+      authStore,
+      username,
+      password,
+      loading,
+      loginUser
+    }
   }
-}
+})
 </script>
 
 <style lang="scss">
