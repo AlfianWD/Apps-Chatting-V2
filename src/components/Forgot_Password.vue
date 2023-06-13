@@ -3,23 +3,45 @@
 <template>
   <div class="tes">
     <div class="cards">
-      <h3>Forgot Password</h3>
-      <form @submit.prevent="forgotUser">
-        <div class="containerr-x mb-3">
-          <input v-model="username" type="text" placeholder="Username or Name" required />
-        </div>
-        <div class="containerr-button">
-          <a type="button" href="/login" :class="['btn btn-outline-primary']">Back</a>
-          <button type="submit" :class="['btn btn-outline-danger']">Search</button>
-        </div>
-      </form>
+      <div v-if="!showUpdateForm">
+        <h3>Forgot Password</h3>
+        <form @submit.prevent="forgotUser">
+          <div class="containerr-x mb-3">
+            <input v-model="username" type="text" placeholder="Username" required />
+          </div>
+          <div class="containerr-button">
+            <a type="button" href="/login" :class="['btn btn-outline-primary']">Back</a>
+            <button type="submit" :class="['btn btn-outline-danger']">Search</button>
+          </div>
+        </form>
+      </div>
+
+      <div v-if="showUpdateForm">
+        <h3>Update Password</h3>
+        <form @submit.prevent="updatePassword">
+          <div class="containerr-x mb-3">
+            <input v-model="newPassword" type="password" placeholder="New Password" required />
+          </div>
+          <div class="containerr-x mb-3">
+            <input
+              v-model="confirmPassword"
+              type="password"
+              placeholder="Confirm Password"
+              required
+            />
+          </div>
+          <div class="containerr-button">
+            <button type="submit" :class="['btn btn-outline-danger']">Update Password</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { ref } from 'vue'
-import { ref as dbRef, get, orderByChild, equalTo, query } from 'firebase/database'
+import { ref as dbRef, get, orderByChild, equalTo, query, update } from 'firebase/database'
 import { db } from '../assets/js/firebase'
 
 export default {
@@ -29,6 +51,7 @@ export default {
     const selectedUser = ref(null)
     const newPassword = ref('')
     const confirmPassword = ref('')
+    const showUpdateForm = ref(false)
 
     const forgotUser = async () => {
       username: username.value
@@ -45,8 +68,12 @@ export default {
           const user = userData[userKey]
 
           selectedUser.value = {
+            username: user.username,
             password: user.password
           }
+
+          // Tampilkan form update password
+          showUpdateForm.value = true
         } else {
           selectedUser.value = null
 
@@ -58,12 +85,57 @@ export default {
       }
     }
 
+    const updatePassword = async () => {
+      // Menyegarkan nilai `selectedUser`
+      selectedUser.value = selectedUser.value
+
+      // Cek kondisi apakah new password tidak sama dengan confirm password
+      if (newPassword.value === confirmPassword.value) {
+        try {
+          // Cek apakah telah memilih user dan suer password nya
+          if (selectedUser.value && selectedUser.value.password) {
+            const usersRef = dbRef(db, 'users')
+            const queryRef = query(
+              usersRef,
+              orderByChild('username'),
+              equalTo(selectedUser.value.username)
+            )
+            const snapshot = await get(queryRef)
+
+            if (snapshot.exists()) {
+              const userData = snapshot.val()
+              const userKey = Object.keys(userData)[0]
+              const userRef = dbRef(db, `users/${userKey}`)
+              await update(userRef, { password: newPassword.value })
+
+              alert('Password updated successfully')
+              newPassword.value = ''
+              confirmPassword.value = ''
+              // Tampilkan form pencarian pengguna
+              showUpdateForm.value = false
+            } else {
+              alert('User not found')
+            }
+          } else {
+            alert('No User selected')
+          }
+        } catch (error) {
+          console.error(error)
+          alert('Failed to update password!')
+        }
+      } else {
+        alert('New Password and Confirm Password do not macth!')
+      }
+    }
+
     return {
       username,
       selectedUser,
       newPassword,
       confirmPassword,
-      forgotUser
+      showUpdateForm,
+      forgotUser,
+      updatePassword
     }
   }
 }

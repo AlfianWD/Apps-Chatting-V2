@@ -1,5 +1,6 @@
 import { createPinia, defineStore } from 'pinia'
 import { ref, get, orderByChild, equalTo, query } from 'firebase/database'
+import { db } from '../js/firebase'
 
 const pinia = createPinia()
 
