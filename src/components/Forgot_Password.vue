@@ -6,72 +6,67 @@
       <h3>Forgot Password</h3>
       <form @submit.prevent="forgotUser">
         <div class="containerr-x mb-3">
-          <input v-model="username" type="text" placeholder="Username" />
+          <input v-model="username" type="text" placeholder="Username or Name" required />
         </div>
         <div class="containerr-button">
           <a type="button" href="/login" :class="['btn btn-outline-primary']">Back</a>
-          <button type="submit" :class="['btn btn-outline-danger']" :disabled="loading">
-            Cari
-          </button>
+          <button type="submit" :class="['btn btn-outline-danger']">Search</button>
         </div>
       </form>
     </div>
-    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { ref } from 'vue'
+import { ref as dbRef, get, orderByChild, equalTo, query } from 'firebase/database'
+import { db } from '../assets/js/firebase'
 
-import { useRouter } from 'vue-router'
-
-// Import useAuthStore from auth
-import { useAuthStore } from '../assets/js/auth'
-
-export default defineComponent({
-  name: 'Login',
+export default {
+  name: 'forgotUser',
   setup() {
-    const router = useRouter()
-    const authStore = useAuthStore()
-
     const username = ref('')
-    const password = ref('')
-    const loading = ref(false)
+    const selectedUser = ref(null)
+    const newPassword = ref('')
+    const confirmPassword = ref('')
 
-    const loginUser = async () => {
+    const forgotUser = async () => {
+      username: username.value
       try {
-        loading.value = true
-        const loginSuccess = await authStore.login({
-          username: username.value,
-          password: password.value
-        })
+        // Inisialisasi database
+        const usersRef = dbRef(db, 'users')
+        const queryRef = query(usersRef, orderByChild('username'), equalTo(username.value))
+        const snapshot = await get(queryRef)
 
-        if (loginSuccess) {
-          // Login successful
-          alert('Login successful')
-          // Redirect to the desired page after login
-          router.push({ path: '/home' })
+        // Cek apakah data sudah didapatkan atau belom
+        if (snapshot.exists()) {
+          const userData = snapshot.val()
+          const userKey = Object.keys(userData)[0]
+          const user = userData[userKey]
+
+          selectedUser.value = {
+            password: user.password
+          }
         } else {
-          // Login failed
-          alert('Login failed')
+          selectedUser.value = null
+
+          // notifivkasi jika username tidak ada
+          alert('username tidak ada')
         }
       } catch (error) {
         console.error(error)
-        alert('An error occurred during login')
-      } finally {
-        loading.value = false
       }
     }
 
     return {
-      authStore,
       username,
-      password,
-      loading,
-      loginUser
+      selectedUser,
+      newPassword,
+      confirmPassword,
+      forgotUser
     }
   }
-})
+}
 </script>
 
 <style lang="scss">

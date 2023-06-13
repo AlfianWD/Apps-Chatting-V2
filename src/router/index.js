@@ -4,6 +4,7 @@ import Welcome from '../views/Welcome.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Forgot_Password from '../components/Forgot_Password.vue'
+import Update_Password from '../components/Update_Password.vue'
 import Home from '../components/Home.vue'
 
 const routes = [
@@ -29,6 +30,12 @@ const routes = [
     path: '/forgot',
     name: 'forgot-password',
     component: Forgot_Password
+  },
+
+  {
+    path: '/update',
+    name: 'update-password',
+    component: Update_Password
   },
 
   {
