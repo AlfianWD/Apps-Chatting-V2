@@ -3,27 +3,16 @@
 <template>
   <div class="tes">
     <div class="cards">
-      <h3>Login</h3>
-      <form @submit.prevent="loginUser">
+      <h3>Forgot Password</h3>
+      <form @submit.prevent="forgotUser">
         <div class="containerr-x mb-3">
           <input v-model="username" type="text" placeholder="Username" />
         </div>
-        <div class="containerr-x mb-3">
-          <input v-model="password" type="Password" placeholder="Password" />
-          <div class="containerr-forgot">
-            <p><a href="/forgot">Forgot Password ?</a></p>
-          </div>
-        </div>
         <div class="containerr-button">
+          <a type="button" href="/login" :class="['btn btn-outline-primary']">Back</a>
           <button type="submit" :class="['btn btn-outline-danger']" :disabled="loading">
-            Mulai
+            Cari
           </button>
-        </div>
-        <div class="containerr-a mb-3">
-          <h6>
-            Don't have account?
-            <a href="/register">Create your account</a>
-          </h6>
         </div>
       </form>
     </div>
@@ -152,9 +141,12 @@ export default defineComponent({
 }
 
 .containerr-button {
-  margin-left: 45px;
-  margin-right: 45px;
-  margin-bottom: 25px;
+  display: flex;
+
+  a {
+    margin-right: 20px;
+    width: 200px;
+  }
 
   button {
     width: 100%;
