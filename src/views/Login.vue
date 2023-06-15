@@ -6,10 +6,10 @@
       <h3>Login</h3>
       <form @submit.prevent="loginUser">
         <div class="containerr-x mb-3">
-          <input v-model="username" type="text" placeholder="Username" />
+          <input v-model="username" type="text" placeholder="Username" required />
         </div>
         <div class="containerr-x mb-3">
-          <input v-model="password" type="Password" placeholder="Password" />
+          <input v-model="password" type="Password" placeholder="Password" required />
           <div class="containerr-forgot">
             <p><a href="/forgot">Forgot Password ?</a></p>
           </div>

@@ -6,16 +6,16 @@
       <h3>Register</h3>
       <form class="form-login" @submit.prevent="registerUser">
         <div class="containerr-y mb-3">
-          <input v-model="name" type="text" placeholder="Name" />
+          <input v-model="name" type="text" placeholder="Name" required />
         </div>
         <div class="containerr-y mb-3">
-          <input v-model="username" type="text" placeholder="Username" />
+          <input v-model="username" type="text" placeholder="Username" required />
         </div>
         <div class="containerr-y mb-3">
-          <input v-model="password" type="Password" placeholder="Password" />
+          <input v-model="password" type="Password" placeholder="Password" required />
         </div>
         <div class="containerr-y mb-3">
-          <input v-model="confirmPassword" type="Password" placeholder="Re-Password" />
+          <input v-model="confirmPassword" type="Password" placeholder="Re-Password" required />
         </div>
         <div class="containerr-buttonn">
           <button type="submit" :class="['btn btn-outline-danger']" :disabled="isRegistering">
@@ -84,7 +84,11 @@ export default {
       // Mengaktifkan kembali tombol register dan mengembalikan teks tombol ke "Create"
       this.isRegistering = false
 
+      // Notifikasi berhasil register
       alert('Registration successful')
+
+      // Route setelah register
+      this.$router.push({ name: 'login' })
     }
   }
 }
