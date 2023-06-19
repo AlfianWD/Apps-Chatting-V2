@@ -97,7 +97,7 @@ export default {
 <style lang="scss">
 .test {
   min-height: 100vh;
-  background-image: linear-gradient(to bottom right, rgb(245, 66, 101) 0%, rgb(189, 28, 60) 100%);
+  background-color: #0a0c0e;
 }
 .card {
   position: fixed;

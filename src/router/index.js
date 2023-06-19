@@ -6,6 +6,7 @@ import Register from '../views/Register.vue'
 import Forgot_Password from '../components/Forgot_Password.vue'
 import Update_Password from '../components/Update_Password.vue'
 import Home from '../components/Home.vue'
+// import Contact from '../components/Contact.vue'
 
 const routes = [
   {
@@ -43,6 +44,12 @@ const routes = [
     name: 'home',
     component: Home
   }
+
+  // {
+  //   path: '/contact',
+  //   name: 'contact',
+  //   component: Contact
+  // }
 ]
 
 const router = createRouter({
