@@ -28,7 +28,9 @@
           <p>{{ loggedInUser && loggedInUser.name }}</p>
         </div>
         <div class="containerr-button">
-          <a type="button" href="/home" :class="['btn btn-outline-light']">Back</a>
+          <a type="button" href="#" :class="['btn btn-outline-light']" @click="closeUserContainer"
+            >Back</a
+          >
           <a type="button" href="/login" :class="['btn btn-outline-primary']">Logout</a>
         </div>
       </div>
@@ -76,7 +78,6 @@ library.add(faSearch)
 
 // Import useAuthStore from auth
 import { useAuthStore } from '../assets/js/auth'
-import { getAuth } from 'firebase/auth'
 
 export default {
   name: 'Home',
@@ -103,6 +104,10 @@ export default {
       }
     },
 
+    closeUserContainer() {
+      this.showUserContainer = false
+    },
+
     async fetchLoggedInUser() {
       const authStore = useAuthStore()
 
@@ -125,15 +130,14 @@ export default {
   },
 
   beforeRouteEnter(to, from, next) {
-    // Menggunakan store auth
-    const authStore = useAuthStore()
+    const authStore = useAuthStore() // Menggunakan store auth
 
     // Mengecek status autentikasi pengguna sebelum memasuki halaman
     if (!authStore.isAuthenticated) {
-      // Jika belum login dan tidak dalam user-container, redirect ke halaman login
+      // Jika belum login, redirect ke halaman login
       next('/login')
     } else {
-      // Jika sudah login atau masih dalam user-container, izinkan akses ke halaman Home
+      // Jika sudah login, izinkan akses ke halaman Home
       next()
     }
   }
