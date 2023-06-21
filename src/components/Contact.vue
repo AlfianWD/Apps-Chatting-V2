@@ -1,13 +1,13 @@
 <template>
   <div class="sammple">
-    <div class="contentt-contact">
-      <div class="sidebarr-1">
-        <div class="chatt-icon">
-          <a href="#"> <font-awesome-icon icon="message" /> </a>
+    <div class="content-contact">
+      <div class="sidebar-1">
+        <div class="chat-icon">
+          <a href="/home"> <font-awesome-icon icon="message" /> </a>
         </div>
 
-        <div class="contactt-user">
-          <a href="/Contact">
+        <div class="contact-user">
+          <a href="/contact">
             <font-awesome-icon :icon="['fas', 'address-book']" />
           </a>
         </div>
@@ -15,19 +15,23 @@
         <div class="user-icon">
           <a href="#" @click="toggleUserContainer">
             <font-awesome-icon :icon="['fas', 'user']" />
-            <p>{{ loggedInUser && loggedInUser.name }}</p>
           </a>
         </div>
       </div>
 
       <div class="user-container" v-show="showUserContainer">
         <h3>Profile</h3>
-        <div class="profile-icon">
-          <font-awesome-icon :icon="['fas', 'user']" />
+        <div class="profile">
+          <div class="profile-icon">
+            <font-awesome-icon :icon="['fas', 'user']" />
+          </div>
+          <p>{{ loggedInUser && loggedInUser.name }}</p>
         </div>
-        <p></p>
         <div class="containerr-button">
-          <a type="button" href="/home" :class="['btn btn-outline-light']">Back</a>
+          <a type="button" href="#" :class="['btn btn-outline-light']" @click="closeUserContainer"
+            >Back</a
+          >
+          <a type="button" href="/login" :class="['btn btn-outline-primary']">Logout</a>
         </div>
       </div>
 
@@ -131,7 +135,7 @@ export default {
     toggleContactContainer() {
       this.showContactContainer = !this.showContactContainer
     }
-  },
+  }
 
   //   async addContact() {
   //     // logika menambahkan kontak ke daftar contact
@@ -169,26 +173,27 @@ export default {
   //   }
   // }
 
-  beforeRouteEnter(to, from, next) {
-    const authStore = useAuthStore() // Menggunakan store auth
+  // beforeRouteEnter(to, from, next) {
+  //   const authStore = useAuthStore() // Menggunakan store auth
 
-    // Mengecek status autentikasi pengguna sebelum memasuki halaman
-    if (!authStore.isAuthenticated) {
-      // Jika belum login, redirect ke halaman login
-      next('/login')
-    } else {
-      // Jika sudah login, izinkan akses ke halaman Home
-      next()
-    }
-  }
+  //   // Mengecek status autentikasi pengguna sebelum memasuki halaman
+  //   if (!authStore.isAuthenticated) {
+  //     // Jika belum login, redirect ke halaman login
+  //     next('/login')
+  //   } else {
+  //     // Jika sudah login, izinkan akses ke halaman Home
+  //     next()
+  //   }
+  // }
 }
 </script>
 
 <style lang="scss">
-.sample {
+.sammple {
   display: flex;
   height: 100vh;
   background-color: #0a0c0e;
+
   .content-contact {
     display: flex;
 
@@ -198,9 +203,9 @@ export default {
       padding: 20px;
       background-color: #0a0c0e;
 
-      .user-icon {
-        margin-top: 480px;
+      .chat-icon {
         margin-left: 2px;
+        margin-bottom: 10px;
         align-items: center;
 
         a {
@@ -224,6 +229,20 @@ export default {
           color: rgb(158, 158, 158);
         }
       }
+
+      .user-icon {
+        margin-top: 480px;
+        margin-left: 2px;
+        align-items: center;
+
+        a {
+          color: #ffffff;
+        }
+
+        a:hover {
+          color: rgb(158, 158, 158);
+        }
+      }
     }
 
     .user-container {
@@ -235,7 +254,8 @@ export default {
       border-radius: 8px;
       border: 1px solid #414141;
       position: absolute;
-      background-color: #0a0c0e;
+      background-color: #414141;
+      z-index: 1;
 
       .profile-icon {
         font-size: 25px;
