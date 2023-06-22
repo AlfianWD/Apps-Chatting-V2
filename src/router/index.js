@@ -50,7 +50,6 @@ const routes = [
     path: '/contact',
     name: 'contact',
     component: Contact
-    // meta: { requiresAuth: true }
   }
 ]
 
@@ -58,22 +57,5 @@ const router = createRouter({
   history: createWebHistory(),
   routes
 })
-
-// router.beforeEach((to, from, next) => {
-//   // Periksa apakah rute membutuhkan otorisasi login
-//   if (to.matched.some((record) => record.meta.requiresAuth)) {
-//     // Periksa apakah pengguna sudah login atau memiliki data autentikasi
-//     if (localStorage.getItem('userLoggedIn')) {
-//       // Jika pengguna sudah login, lanjutkan ke rute yang diminta
-//       next()
-//     } else {
-//       // Jika pengguna belum login, alihkan ke halaman login atau halaman lainnya
-//       next('/login')
-//     }
-//   } else {
-//     // Untuk rute yang tidak membutuhkan otorisasi, lanjutkan ke rute yang diminta
-//     next()
-//   }
-// })
 
 export default router

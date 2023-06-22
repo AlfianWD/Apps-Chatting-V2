@@ -60,8 +60,13 @@ export default defineComponent({
         if (loginSuccess) {
           // Login successful
           alert('Login successful')
+
+          // Menyimpan informasi sesi login ke localStorage
+          localStorage.setItem('isLoggedIn', 'true')
+          authStore.isAuthenticated = true
+
           // Redirect to the desired page after login
-          router.push({ path: '/contact' })
+          router.push({ path: '/home' })
         } else {
           // Login failed
           alert('Login failed')

@@ -176,10 +176,18 @@ export default {
           const loggedInUser = userData[userKey]
           this.loggedInUser = loggedInUser
         }
+      }
+    },
 
-        this.isAuthenticated = true
+    beforeRouteEnter(to, from, next) {
+      const authStore = useAuthStore() // Menggunakan store auth
+      // Mengecek status autentikasi pengguna sebelum memasuki halaman
+      if (!authStore.isAuthenticated) {
+        // Jika belum login, redirect ke halaman login
+        next('/login')
       } else {
-        this.isAuthenticated = false
+        // Jika sudah login, izinkan akses ke halaman Contact
+        next()
       }
     }
   },
@@ -217,19 +225,6 @@ export default {
     // Kembali ke halaman kontak setelah menambahkan kontak
     this.showContactContainer = false
     this.newContactName = ''
-  },
-
-  beforeRouteEnter(to, from, next) {
-    const authStore = useAuthStore() // Menggunakan store auth
-
-    // Mengecek status autentikasi pengguna sebelum memasuki halaman
-    if (!authStore.isAuthenticated) {
-      // Jika belum login, redirect ke halaman login
-      next('/login')
-    } else {
-      // Jika sudah login, izinkan akses ke halaman Home
-      next()
-    }
   }
 }
 </script>

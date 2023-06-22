@@ -7,7 +7,7 @@
         </div>
 
         <div class="contact-icon">
-          <a href="/contact" v-if="isAuthenticated">
+          <a href="#" @click="toggleSidebarContact">
             <font-awesome-icon :icon="['fas', 'address-book']" />
           </a>
         </div>
@@ -35,7 +35,7 @@
         </div>
       </div>
 
-      <div class="sidebar-2">
+      <div class="sidebar-2" v-if="!showSidebarContact">
         <div class="judul">
           <h2>Chat</h2>
           <a href="#" @click="toggleChatContainer">
@@ -84,6 +84,37 @@
             >Back</a
           >
         </div>
+      </div>
+
+      <div class="sidebar-2" v-if="showSidebarContact">
+        <div class="judul">
+          <h2>Contact</h2>
+        </div>
+        <input type="text" placeholder="Search" />
+        <span class="search-icon">
+          <font-awesome-icon :icon="['fas', 'search']" />
+        </span>
+        <div class="contact-list">
+          <div v-for="user in users" :key="user.id">
+            <font-awesome-icon class="icon-user" :icon="['fas', 'circle-user']" />
+            {{ user.name }}
+          </div>
+        </div>
+        <div class="contact-add" @click="toggleContactContainer">
+          <font-awesome-icon :icon="['fas', 'circle-plus']" />
+        </div>
+      </div>
+
+      <div class="contact-container" v-show="showContactContainer">
+        <h3>Add Contact</h3>
+        <form @submit.prevent="addNewContact">
+          <div class="containerr-inputan">
+            <input type="text" v-model="newUserName" />
+          </div>
+          <div class="containerr-button">
+            <button type="button" :class="['btn btn-outline-light']">Add</button>
+          </div>
+        </form>
       </div>
     </div>
     <div class="content-chat">
@@ -141,16 +172,18 @@ export default {
       // Tambahkan properti container ke dalam data
       showUserContainer: false,
       showChatContainer: false,
+      showSidebarContact: false,
+      showContactContainer: false,
 
       // Tambahkan properti Login ke dalam data
       loggedInUser: null,
       isLoggedIn: false,
 
       // Tambahkan properti contactList ke dalam data
-      contactList: [],
+      contactList: []
 
       // Tambahkan properti isAuthenticated ke dalam data
-      isAuthenticated: false
+      // isAuthenticated: false
     }
   },
 
@@ -214,6 +247,14 @@ export default {
       this.showChatContainer = false
     },
 
+    toggleSidebarContact() {
+      this.showSidebarContact = !this.showSidebarContact
+    },
+
+    toggleContactContainer() {
+      this.showContactContainer = !this.showContactContainer
+    },
+
     selectContact(contact) {
       const index = this.selectedContacts.findIndex((selected) => selected.id == contact.id)
       if (index > -1) {
@@ -259,13 +300,49 @@ export default {
           const loggedInUser = userData[userKey]
           this.loggedInUser = loggedInUser
         }
-
-        // Set isAuthenticated ke true jika pengguna terautentikasi
-        this.isAuthenticated = true
-      } else {
-        // Set isAuthenticated ke false jika pengguna tidak terautentikasi
-        this.isAuthenticated = false
       }
+
+      //   // Set isAuthenticated ke true jika pengguna terautentikasi
+      //   this.isAuthenticated = true
+      // } else {
+      //   // Set isAuthenticated ke false jika pengguna tidak terautentikasi
+      //   this.isAuthenticated = false
+      // }
+    },
+
+    async addContact() {
+      // logika menambahkan kontak ke daftar contact
+      // Menambahkan referensi database
+      const database = getDatabase()
+      const usersRef = dbRef(database, 'users')
+
+      // Menambahkan kontak baru
+      try {
+        const newContactRef = await push(usersRef)
+        await set(newContactRef, {
+          name: this.newContactName
+        })
+
+        console.log('Contact add successfully!')
+      } catch (e) {
+        console.log('Error adding contact : ', e)
+      }
+
+      // Mengambil data kontak dari database
+      try {
+        const snapshot = await getDatabaseValue(usersRef)
+
+        if (snapshot.exists()) {
+          const usersData = snapshot.val()
+          users.value = Object.keys(usersData).map((key) => usersData[key])
+        }
+      } catch (e) {
+        console.log('Error retrieving data : ', error)
+      }
+
+      // Kembali ke halaman kontak setelah menambahkan kontak
+      this.showContactContainer = false
+      this.newContactName = ''
     }
   },
 
@@ -382,6 +459,36 @@ export default {
       }
     }
 
+    .contact-container {
+      width: 25%;
+      height: 40%;
+      border-radius: 8px;
+      border: 1px solid #414141;
+      left: 50%;
+      top: 50%;
+      position: absolute;
+      transform: translate(-50%, -50%);
+      align-items: center;
+      justify-content: center;
+      background-color: #414141;
+      z-index: 1;
+
+      h3 {
+        margin: 15px;
+        color: #fff;
+      }
+
+      .containerr-inputan {
+        input {
+          width: 85%;
+          margin: 25px;
+        }
+      }
+      .containerr-button {
+        margin-left: 50px;
+      }
+    }
+
     .sidebar-2 {
       width: 350px;
       padding: 20px;
@@ -431,6 +538,17 @@ export default {
           font-size: 32px;
           margin-right: 8px;
         }
+      }
+
+      .contact-add {
+        position: absolute;
+        bottom: 50px;
+        right: 1000px;
+        font-size: 40px;
+      }
+
+      .contact-add:hover {
+        color: #c0c0c0;
       }
     }
 
