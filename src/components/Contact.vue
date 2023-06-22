@@ -52,14 +52,14 @@
         </div>
       </div>
 
-      <div class="Contact-container" v-show="showContactContainer">
+      <div class="contact-container" v-show="showContactContainer">
         <h3>Add Contact</h3>
-        <form action="">
+        <form @submit.prevent="addNewContact">
           <div class="containerr-inputan">
-            <input type="text" />
+            <input type="text" v-model="newUserName" />
           </div>
           <div class="containerr-button">
-            <a type="button" :class="['btn btn-outline-light']">Add</a>
+            <button type="button" :class="['btn btn-outline-light']">Add</button>
           </div>
         </form>
       </div>
@@ -77,8 +77,18 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
+
+// Import database
+import {
+  getDatabase,
+  ref as dbRef,
+  get as getDatabaseValue,
+  query,
+  orderByChild,
+  equalTo
+} from 'firebase/database'
+
 import { ref, onMounted } from 'vue'
-import { getDatabase, ref as dbRef, get as getDatabaseValue } from 'firebase/database'
 
 // Memasukkan icon id di library
 library.add(faSearch)
@@ -95,11 +105,16 @@ export default {
 
   data() {
     return {
+      // Tambahkan properti container ke dalam data
       showUserContainer: false,
       showContactContainer: false,
+
       newContactName: '',
       users: [],
-      isLoggedIn: true
+
+      // Tambahkan properti Login ke dalam data
+      loggedInUser: null,
+      isLoggedIn: false
     }
   },
 
@@ -130,61 +145,92 @@ export default {
     toggleUserContainer() {
       this.showUserContainer = !this.showUserContainer
       this.isLoggedIn = !this.showUserContainer
+
+      if (this.showUserContainer) {
+        this.fetchLoggedInUser()
+      }
+    },
+
+    closeUserContainer() {
+      this.showUserContainer = false
     },
 
     toggleContactContainer() {
       this.showContactContainer = !this.showContactContainer
+    },
+
+    async fetchLoggedInUser() {
+      const authStore = useAuthStore()
+
+      if (authStore.isAuthenticated) {
+        const username = authStore.user.username
+        const database = getDatabase()
+        const usersRef = dbRef(database, 'users')
+        const snapshot = await getDatabaseValue(
+          query(usersRef, orderByChild('username'), equalTo(username))
+        )
+
+        if (snapshot.exists()) {
+          const userData = snapshot.val()
+          const userKey = Object.keys(userData)[0]
+          const loggedInUser = userData[userKey]
+          this.loggedInUser = loggedInUser
+        }
+
+        this.isAuthenticated = true
+      } else {
+        this.isAuthenticated = false
+      }
+    }
+  },
+
+  async addContact() {
+    // logika menambahkan kontak ke daftar contact
+    // Menambahkan referensi database
+    const database = getDatabase()
+    const usersRef = dbRef(database, 'users')
+
+    // Menambahkan kontak baru
+    try {
+      const newContactRef = await push(usersRef)
+      await set(newContactRef, {
+        name: this.newContactName
+      })
+
+      console.log('Contact add successfully!')
+    } catch (e) {
+      console.log('Error adding contact : ', e)
+    }
+
+    // Mengambil data kontak dari database
+    try {
+      const snapshot = await getDatabaseValue(usersRef)
+
+      if (snapshot.exists()) {
+        const usersData = snapshot.val()
+        users.value = Object.keys(usersData).map((key) => usersData[key])
+      }
+    } catch (e) {
+      console.log('Error retrieving data : ', error)
+    }
+
+    // Kembali ke halaman kontak setelah menambahkan kontak
+    this.showContactContainer = false
+    this.newContactName = ''
+  },
+
+  beforeRouteEnter(to, from, next) {
+    const authStore = useAuthStore() // Menggunakan store auth
+
+    // Mengecek status autentikasi pengguna sebelum memasuki halaman
+    if (!authStore.isAuthenticated) {
+      // Jika belum login, redirect ke halaman login
+      next('/login')
+    } else {
+      // Jika sudah login, izinkan akses ke halaman Home
+      next()
     }
   }
-
-  //   async addContact() {
-  //     // logika menambahkan kontak ke daftar contact
-  //     // Menambahkan referensi database
-  //     const database = getDatabase()
-  //     const usersRef = dbRef(database, 'users')
-
-  //     // Menambahkan kontak baru
-  //     try {
-  //       const newContactRef = await push(usersRef)
-  //       await set(newContactRef, {
-  //         name: this.newContactName
-  //       })
-
-  //       console.log('Contact add successfully!')
-  //     } catch (e) {
-  //       console.log('Error adding contact : ', e)
-  //     }
-
-  //     // Mengambil data kontak dari database
-  //     try {
-  //       const snapshot = await getDatabaseValue(usersRef)
-
-  //       if (snapshot.exists()) {
-  //         const usersData = snapshot.val()
-  //         users.value = Object.keys(usersData).map((key) => usersData[key])
-  //       }
-  //     } catch (e) {
-  //       console.log('Error retrieving data : ', error)
-  //     }
-
-  //     // Kembali ke halaman kontak setelah menambahkan kontak
-  //     this.showContactContainer = false
-  //     this.newContactName = ''
-  //   }
-  // }
-
-  // beforeRouteEnter(to, from, next) {
-  //   const authStore = useAuthStore() // Menggunakan store auth
-
-  //   // Mengecek status autentikasi pengguna sebelum memasuki halaman
-  //   if (!authStore.isAuthenticated) {
-  //     // Jika belum login, redirect ke halaman login
-  //     next('/login')
-  //   } else {
-  //     // Jika sudah login, izinkan akses ke halaman Home
-  //     next()
-  //   }
-  // }
 }
 </script>
 
@@ -256,22 +302,63 @@ export default {
       position: absolute;
       background-color: #414141;
       z-index: 1;
-
-      .profile-icon {
-        font-size: 25px;
-        margin: 20px;
+      h3 {
+        margin: 15px;
         color: #fff;
       }
+
+      .profile {
+        display: flex;
+
+        .profile-icon {
+          font-size: 25px;
+          margin-left: 20px;
+          color: #fff;
+        }
+
+        p {
+          font-size: 25px;
+          color: #fff;
+          margin-left: 15px;
+          align-items: center;
+          justify-items: center;
+        }
+
+        .containerr-button {
+          align-items: center;
+          margin-top: 60px;
+          margin-left: 60px;
+        }
+      }
+    }
+
+    .contact-container {
+      width: 25%;
+      height: 40%;
+      border-radius: 8px;
+      border: 1px solid #414141;
+      left: 50%;
+      top: 50%;
+      position: absolute;
+      transform: translate(-50%, -50%);
+      align-items: center;
+      justify-content: center;
+      background-color: #414141;
+      z-index: 1;
 
       h3 {
         margin: 15px;
         color: #fff;
       }
 
+      .containerr-inputan {
+        input {
+          width: 85%;
+          margin: 25px;
+        }
+      }
       .containerr-button {
-        align-items: center;
-        margin-top: 60px;
-        margin-left: 60px;
+        margin-left: 50px;
       }
     }
 

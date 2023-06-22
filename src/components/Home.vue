@@ -7,7 +7,7 @@
         </div>
 
         <div class="contact-icon">
-          <a href="/contact">
+          <a href="/contact" v-if="isAuthenticated">
             <font-awesome-icon :icon="['fas', 'address-book']" />
           </a>
         </div>
@@ -131,23 +131,26 @@ export default {
 
   data() {
     return {
-      // Data select contact
+      // Tambahkan properti contact ke dalam data
       selectedContact: null,
       selectedContacts: [],
 
-      // Menyimpan chat yang dipilih
+      // Tambahkan properti selectedChats ke dalam data
       selectedChats: [],
 
-      // Data show container
+      // Tambahkan properti container ke dalam data
       showUserContainer: false,
       showChatContainer: false,
 
-      // Data Login
+      // Tambahkan properti Login ke dalam data
       loggedInUser: null,
       isLoggedIn: false,
 
-      // Data Contact
-      contactList: []
+      // Tambahkan properti contactList ke dalam data
+      contactList: [],
+
+      // Tambahkan properti isAuthenticated ke dalam data
+      isAuthenticated: false
     }
   },
 
@@ -256,6 +259,12 @@ export default {
           const loggedInUser = userData[userKey]
           this.loggedInUser = loggedInUser
         }
+
+        // Set isAuthenticated ke true jika pengguna terautentikasi
+        this.isAuthenticated = true
+      } else {
+        // Set isAuthenticated ke false jika pengguna tidak terautentikasi
+        this.isAuthenticated = false
       }
     }
   },

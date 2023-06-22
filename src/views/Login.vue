@@ -61,7 +61,7 @@ export default defineComponent({
           // Login successful
           alert('Login successful')
           // Redirect to the desired page after login
-          router.push({ path: '/home' })
+          router.push({ path: '/contact' })
         } else {
           // Login failed
           alert('Login failed')
