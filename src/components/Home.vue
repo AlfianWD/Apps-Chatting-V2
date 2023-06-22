@@ -94,10 +94,10 @@
         <span class="search-icon">
           <font-awesome-icon :icon="['fas', 'search']" />
         </span>
-        <div class="contact-list">
+        <div class="list-contact-name">
           <div v-for="user in users" :key="user.id">
             <font-awesome-icon class="icon-user" :icon="['fas', 'circle-user']" />
-            {{ user.name }}
+            <span> {{ user.name }} </span>
           </div>
         </div>
         <div class="contact-add" @click="toggleContactContainer">
@@ -107,12 +107,19 @@
 
       <div class="contact-container" v-show="showContactContainer">
         <h3>Add Contact</h3>
-        <form @submit.prevent="addNewContact">
+        <form @submit.prevent="addContact">
           <div class="containerr-inputan">
-            <input type="text" v-model="newUserName" />
+            <input type="text" v-model="newContactName" />
           </div>
           <div class="containerr-button">
-            <button type="button" :class="['btn btn-outline-light']">Add</button>
+            <button type="sumbit" :class="['btn btn-outline-danger']">Add</button>
+            <a
+              type="button"
+              href="#"
+              :class="['btn btn-outline-light']"
+              @click="closeContactContainer"
+              >Back</a
+            >
           </div>
         </form>
       </div>
@@ -142,7 +149,8 @@ import {
   get as getDatabaseValue,
   query,
   orderByChild,
-  equalTo
+  equalTo,
+  set
 } from 'firebase/database'
 
 import { ref, onMounted } from 'vue'
@@ -162,6 +170,9 @@ export default {
 
   data() {
     return {
+      // Tambahkan properti newContactName ke dalam data
+      newContactName: '',
+
       // Tambahkan properti contact ke dalam data
       selectedContact: null,
       selectedContacts: [],
@@ -181,9 +192,6 @@ export default {
 
       // Tambahkan properti contactList ke dalam data
       contactList: []
-
-      // Tambahkan properti isAuthenticated ke dalam data
-      // isAuthenticated: false
     }
   },
 
@@ -195,7 +203,7 @@ export default {
     }
   },
 
-  // Configurasi untuk contact-list
+  // Configurasi untuk Contact-list
   setup() {
     const users = ref([])
 
@@ -255,6 +263,10 @@ export default {
       this.showContactContainer = !this.showContactContainer
     },
 
+    closeContactContainer() {
+      this.showContactContainer = !this.showContactContainer
+    },
+
     selectContact(contact) {
       const index = this.selectedContacts.findIndex((selected) => selected.id == contact.id)
       if (index > -1) {
@@ -283,6 +295,7 @@ export default {
       return contact ? contact.name : ''
     },
 
+    // Configurasi Login
     async fetchLoggedInUser() {
       const authStore = useAuthStore()
 
@@ -298,46 +311,93 @@ export default {
           const userData = snapshot.val()
           const userKey = Object.keys(userData)[0]
           const loggedInUser = userData[userKey]
-          this.loggedInUser = loggedInUser
-        }
-      }
 
-      //   // Set isAuthenticated ke true jika pengguna terautentikasi
-      //   this.isAuthenticated = true
-      // } else {
-      //   // Set isAuthenticated ke false jika pengguna tidak terautentikasi
-      //   this.isAuthenticated = false
-      // }
+          // Pastikan loggedInUser memiliki properti 'name' yang valid
+          if (loggedInUser && loggedInUser.name) {
+            this.loggedInUser = loggedInUser
+          } else {
+            this.loggedInUser = null
+          }
+        } else {
+          // Jika data pengguna tidak ditemukan, set loggedInUser menjadi null
+          this.loggedInUser = null
+        }
+      } else {
+        // Jika tidak ada autentikasi, set loggedInUser menjadi null
+        this.loggedInUser = null
+      }
     },
 
+    // Configurasi Add Contact
     async addContact() {
       // logika menambahkan kontak ke daftar contact
       // Menambahkan referensi database
       const database = getDatabase()
       const usersRef = dbRef(database, 'users')
 
-      // Menambahkan kontak baru
-      try {
-        const newContactRef = await push(usersRef)
-        await set(newContactRef, {
-          name: this.newContactName
-        })
+      // Mendapatkan username dari proses login atau otentikasi
+      // Ganti dengan nilai username dari proses login
+      const loggedInUsername = this.loggedInUser.username
 
-        console.log('Contact add successfully!')
-      } catch (e) {
-        console.log('Error adding contact : ', e)
-      }
-
-      // Mengambil data kontak dari database
+      // Mengambil data pengguna dari database berdasarkan username
       try {
         const snapshot = await getDatabaseValue(usersRef)
-
         if (snapshot.exists()) {
           const usersData = snapshot.val()
-          users.value = Object.keys(usersData).map((key) => usersData[key])
+          const user = Object.values(usersData).find(
+            (userData) => userData.username === loggedInUsername
+          )
+
+          console.log(user)
+
+          if (user) {
+            // Memeriksa apakah kontak yang akan ditambahkan sudah ada di dalam daftar kontak
+            if (user.contacts && user.contacts.includes(this.newContactName)) {
+              alert("Contact already exists in the user's contact list!")
+              return
+            }
+
+            // Verifikasi apakah pengguna dengan nama kontak yang baru belum terdaftar
+            const contactUser = Object.values(usersData).find(
+              (userData) => userData.username === this.newContactName
+            )
+
+            console.log(contactUser)
+
+            if (!contactUser) {
+              alert('Contact user does not exist!')
+              return
+            }
+
+            // Memeriksa apakah pengguna mencoba menambahkan kontak dengan nama pengguna yang digunakan untuk login
+            if (contactUser.username === loggedInUsername) {
+              alert("You can't add yourself as a contact!")
+              return
+            }
+
+            // Menambahkan kontak baru ke dalam daftar kontak
+            if (!user.contacts) {
+              user.contacts = []
+            }
+
+            // Membuat objek kontak dengan properti name sesuai dengan nama kontak yang baru ditambahkan
+            const newContact = {
+              name: this.newContactName
+            }
+
+            // Tambahkan kontak baru ke dalam daftar kontak
+            user.contacts.push(newContact)
+
+            // Menyimpan perubahan ke database
+            await set(usersRef, usersData)
+
+            alert('Contact added successfully!')
+          } else {
+            alert('User not found!')
+          }
         }
       } catch (e) {
-        console.log('Error retrieving data : ', error)
+        alert('Error retrieving user data: ', e)
       }
 
       // Kembali ke halaman kontak setelah menambahkan kontak
@@ -428,6 +488,7 @@ export default {
       border: 1px solid #414141;
       position: absolute;
       background-color: #414141;
+      z-index: 1;
 
       h3 {
         margin: 15px;
@@ -486,6 +547,10 @@ export default {
       }
       .containerr-button {
         margin-left: 50px;
+
+        a {
+          margin-left: 15px;
+        }
       }
     }
 
@@ -537,6 +602,21 @@ export default {
         .icon-user {
           font-size: 32px;
           margin-right: 8px;
+        }
+      }
+
+      .list-contact-name {
+        align-items: center;
+
+        .icon-user {
+          margin-top: 15px;
+          font-size: 20px;
+          margin-right: 8px;
+        }
+
+        span {
+          font-family: 'Raleway', sans-serif;
+          font-size: 18px;
         }
       }
 
