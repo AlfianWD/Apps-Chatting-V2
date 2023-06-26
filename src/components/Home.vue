@@ -69,14 +69,15 @@
           <div class="contact-list">
             <div
               class="contact-item"
-              v-for="user in users"
-              :key="user.id"
+              v-for="(contact, index) in contacts"
+              :key="index"
               @click="selectContact(user)"
               :class="{ selected: isSelected(user) }"
             >
               <font-awesome-icon class="icon-user" :icon="['fas', 'circle-user']" />
-              {{ user.name }}
+              {{ contact }}
             </div>
+            <div v-if="contacts.length === 0" id="contact-message">Not have a contact friend</div>
           </div>
         </div>
         <div class="containerr-button">
@@ -95,9 +96,12 @@
           <font-awesome-icon :icon="['fas', 'search']" />
         </span>
         <div class="list-contact-name">
-          <div v-for="user in users" :key="user.id">
+          <div v-for="(contact, index) in contacts" :key="index">
             <font-awesome-icon class="icon-user" :icon="['fas', 'circle-user']" />
-            <span> {{ user.name }} </span>
+            <span>{{ contact }}</span>
+          </div>
+          <div class="alert-no-contacts" v-if="contacts.length === 0" id="contact-message">
+            Not have a contact friend
           </div>
         </div>
         <div class="contact-add" @click="toggleContactContainer">
@@ -150,7 +154,8 @@ import {
   query,
   orderByChild,
   equalTo,
-  set
+  set,
+  onValue
 } from 'firebase/database'
 
 import { ref, onMounted } from 'vue'
@@ -205,31 +210,40 @@ export default {
 
   // Configurasi untuk Contact-list
   setup() {
-    const users = ref([])
+    const contacts = ref([])
+    const loggedInUser = useAuthStore().user
+    const database = getDatabase()
+    const usersRef = dbRef(database, 'users')
 
     onMounted(async () => {
-      try {
-        const database = getDatabase()
-        const usersRef = dbRef(database, 'users')
-        const snapshot = await getDatabaseValue(usersRef)
+      if (loggedInUser) {
+        const loggedInUsername = loggedInUser.username
+        const userQuery = query(usersRef, orderByChild('username'), equalTo(loggedInUsername))
+        const snapshot = await getDatabaseValue(userQuery)
 
         if (snapshot.exists()) {
-          const usersData = snapshot.val()
-          users.value = Object.keys(usersData).map((key) => usersData[key])
+          const userData = snapshot.val()
+          const userKey = Object.keys(userData)[0]
+          const user = userData[userKey]
+
+          if (user.contacts) {
+            const contactKeys = Object.keys(user.contacts)
+
+            for (const contactKey of contactKeys) {
+              const contact = user.contacts[contactKey]
+              const contactName = contact.name
+
+              if (contactName) {
+                contacts.value.push(contactName)
+              }
+            }
+          }
         }
-      } catch (error) {
-        console.log('Error retrieving data : ', error)
       }
     })
 
-    const selectContact = (user) => {
-      // melakukan sesuatu ketika kontak dipilih
-      console.log('Kontak dipilih : ', user.name)
-    }
-
     return {
-      users,
-      selectContact
+      contacts
     }
   },
 
@@ -291,8 +305,13 @@ export default {
     },
 
     getContactName(contactId) {
-      const contact = this.users.find((user) => user.id === contactId)
-      return contact ? contact.name : ''
+      if (userData.contacts) {
+        const contacts = Object.values(userData.contacts)
+        if (contacts.length > 0 && contacts[0].name) {
+          return contacts[0].name
+        }
+      }
+      return null
     },
 
     // Configurasi Login
@@ -300,11 +319,11 @@ export default {
       const authStore = useAuthStore()
 
       if (authStore.isAuthenticated) {
-        const username = authStore.user.username
+        const loggedInUsername = authStore.user.username
         const database = getDatabase()
         const usersRef = dbRef(database, 'users')
         const snapshot = await getDatabaseValue(
-          query(usersRef, orderByChild('username'), equalTo(username))
+          query(usersRef, orderByChild('username'), equalTo(loggedInUsername))
         )
 
         if (snapshot.exists()) {
@@ -348,7 +367,7 @@ export default {
             (userData) => userData.username === loggedInUsername
           )
 
-          console.log(user)
+          // console.log(user)
 
           if (user) {
             // Memeriksa apakah kontak yang akan ditambahkan sudah ada di dalam daftar kontak
@@ -362,7 +381,7 @@ export default {
               (userData) => userData.username === this.newContactName
             )
 
-            console.log(contactUser)
+            // console.log(contactUser)
 
             if (!contactUser) {
               alert('Contact user does not exist!')
@@ -375,20 +394,16 @@ export default {
               return
             }
 
-            // Menambahkan kontak baru ke dalam daftar kontak
-            if (!user.contacts) {
-              user.contacts = []
-            }
-
-            // Membuat objek kontak dengan properti name sesuai dengan nama kontak yang baru ditambahkan
             const newContact = {
               name: this.newContactName
             }
 
-            // Tambahkan kontak baru ke dalam daftar kontak
+            if (!user.contacts) {
+              user.contacts = []
+            }
+
             user.contacts.push(newContact)
 
-            // Menyimpan perubahan ke database
             await set(usersRef, usersData)
 
             alert('Contact added successfully!')
@@ -400,7 +415,6 @@ export default {
         alert('Error retrieving user data: ', e)
       }
 
-      // Kembali ke halaman kontak setelah menambahkan kontak
       this.showContactContainer = false
       this.newContactName = ''
     }
@@ -618,6 +632,12 @@ export default {
           font-family: 'Raleway', sans-serif;
           font-size: 18px;
         }
+
+        .alert-no-contacts {
+          color: #cc3300;
+          margin-top: 15px;
+          font-size: 16px;
+        }
       }
 
       .contact-add {
@@ -629,6 +649,11 @@ export default {
 
       .contact-add:hover {
         color: #c0c0c0;
+      }
+
+      .alert-contact {
+        margin-top: 25px;
+        color: #cc3300;
       }
     }
 
