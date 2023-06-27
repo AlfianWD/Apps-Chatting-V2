@@ -3,10 +3,10 @@
     <div class="cards">
       <h3>Update Password</h3>
       <form @submit.prevent="updatePassword">
-        <div class="containerr-x mb-3">
+        <div class="containerr-xz mb-3">
           <input v-model="newPassword" type="text" placeholder="New Password" required />
         </div>
-        <div class="containerr-x mb-3">
+        <div class="containerr-xz mb-3">
           <input v-model="confirmPassword" type="text" placeholder="Confirm Password" required />
         </div>
         <div class="containerr-button">
@@ -49,7 +49,7 @@ export default {
   }
 }
 
-.containerr-x {
+.containerr-xz {
   margin-left: 30px;
   margin-right: 30px;
 

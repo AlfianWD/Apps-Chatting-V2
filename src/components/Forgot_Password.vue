@@ -6,7 +6,7 @@
       <div v-if="!showUpdateForm">
         <h3>Forgot Password</h3>
         <form @submit.prevent="forgotUser">
-          <div class="containerr-x mb-3">
+          <div class="containerr-xy mb-3">
             <input v-model="username" type="text" placeholder="Username" required />
           </div>
           <div class="containerr-button">
@@ -19,10 +19,10 @@
       <div v-if="showUpdateForm">
         <h3>Update Password</h3>
         <form @submit.prevent="updatePassword">
-          <div class="containerr-x mb-3">
+          <div class="containerr-xy mb-3">
             <input v-model="newPassword" type="password" placeholder="New Password" required />
           </div>
-          <div class="containerr-x mb-3">
+          <div class="containerr-xy mb-3">
             <input
               v-model="confirmPassword"
               type="password"
@@ -166,7 +166,7 @@ export default {
   }
 }
 
-.containerr-x {
+.containerr-xy {
   margin-left: 30px;
   margin-right: 30px;
 

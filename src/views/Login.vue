@@ -1,5 +1,4 @@
 <!-- Created By Alfian Wahyu -->
-
 <template>
   <div class="tes">
     <div class="cards">
@@ -9,7 +8,15 @@
           <input v-model="username" type="text" placeholder="Username" required />
         </div>
         <div class="containerr-x mb-3">
-          <input v-model="password" type="Password" placeholder="Password" required />
+          <input
+            v-model="password"
+            :type="showPassword ? 'text' : 'password'"
+            placeholder="Password"
+            required
+          />
+          <a class="button-show" @click.prevent="showPassword = !showPassword">
+            <font-awesome-icon :icon="['fas', showPassword ? 'eye-slash' : 'eye']" />
+          </a>
           <div class="containerr-forgot">
             <p><a href="/forgot">Forgot Password ?</a></p>
           </div>
@@ -41,6 +48,14 @@ import { useAuthStore } from '../assets/js/auth'
 
 export default defineComponent({
   name: 'Login',
+
+  data() {
+    return {
+      password: '',
+      showPassword: false
+    }
+  },
+
   setup() {
     const router = useRouter()
     const authStore = useAuthStore()
@@ -128,6 +143,16 @@ export default defineComponent({
     margin-bottom: 20px;
     color: #000000;
     border-bottom: 1px solid #000000;
+  }
+
+  .button-show {
+    position: absolute;
+    top: 205px;
+    right: 85px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    text-decoration: none;
+    color: #0a0c0e;
   }
 
   .containerr-forgot {
