@@ -12,10 +12,26 @@
           <input v-model="username" type="text" placeholder="Username" required />
         </div>
         <div class="containerr-y mb-3">
-          <input v-model="password" type="Password" placeholder="Password" required />
+          <input
+            v-model="password"
+            :type="showPassword ? 'text' : 'password'"
+            placeholder="Password"
+            required
+          />
+          <a class="buttonn-show" @click.prevent="showPassword = !showPassword">
+            <font-awesome-icon :icon="['fas', showPassword ? 'eye-slash' : 'eye']" />
+          </a>
         </div>
         <div class="containerr-y mb-3">
-          <input v-model="confirmPassword" type="Password" placeholder="Re-Password" required />
+          <input
+            v-model="confirmPassword"
+            :type="showwPassword ? 'text' : 'password'"
+            placeholder="Re-Password"
+            required
+          />
+          <a class="buttonn-showw" @click.prevent="showwPassword = !showwPassword">
+            <font-awesome-icon :icon="['fas', showwPassword ? 'eye-slash' : 'eye']" />
+          </a>
         </div>
         <div class="containerr-buttonn">
           <button type="submit" :class="['btn btn-outline-danger']" :disabled="isRegistering">
@@ -43,7 +59,9 @@ export default {
       username: '',
       password: '',
       confirmPassword: '',
-      isRegistering: false
+      isRegistering: false,
+      showPassword: false,
+      showwPassword: false
     }
   },
 
@@ -115,6 +133,26 @@ export default {
     text-align: center;
     text-transform: uppercase;
     margin-bottom: 50px;
+  }
+
+  .buttonn-show {
+    position: absolute;
+    top: 260px;
+    right: 85px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    text-decoration: none;
+    color: #0a0c0e;
+  }
+
+  .buttonn-showw {
+    position: absolute;
+    top: 325px;
+    right: 85px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    text-decoration: none;
+    color: #0a0c0e;
   }
 }
 

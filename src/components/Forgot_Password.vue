@@ -20,15 +20,26 @@
         <h3>Update Password</h3>
         <form @submit.prevent="updatePassword">
           <div class="containerr-xy mb-3">
-            <input v-model="newPassword" type="password" placeholder="New Password" required />
+            <input
+              v-model="newPassword"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="New Password"
+              required
+            />
+            <a class="buttonn-show" @click.prevent="showPassword = !showPassword">
+              <font-awesome-icon :icon="['fas', showPassword ? 'eye-slash' : 'eye']" />
+            </a>
           </div>
           <div class="containerr-xy mb-3">
             <input
               v-model="confirmPassword"
-              type="password"
+              :type="showwPassword ? 'text' : 'password'"
               placeholder="Confirm Password"
               required
             />
+            <a class="buttonn-showw" @click.prevent="showwPassword = !showwPassword">
+              <font-awesome-icon :icon="['fas', showwPassword ? 'eye-slash' : 'eye']" />
+            </a>
           </div>
           <div class="containerr-button">
             <button type="submit" :class="['btn btn-outline-danger']">Update Password</button>
@@ -46,6 +57,14 @@ import { db } from '../assets/js/firebase'
 
 export default {
   name: 'forgotUser',
+
+  data() {
+    return {
+      showPassword: false,
+      showwPassword: false
+    }
+  },
+
   setup() {
     const username = ref('')
     const selectedUser = ref(null)
@@ -163,6 +182,26 @@ export default {
     text-align: center;
     text-transform: uppercase;
     margin-bottom: 50px;
+  }
+
+  .buttonn-show {
+    position: absolute;
+    top: 140px;
+    right: 85px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    text-decoration: none;
+    color: #0a0c0e;
+  }
+
+  .buttonn-showw {
+    position: absolute;
+    top: 205px;
+    right: 85px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    text-decoration: none;
+    color: #0a0c0e;
   }
 }
 
