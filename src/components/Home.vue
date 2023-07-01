@@ -71,8 +71,8 @@
               class="contact-item"
               v-for="(contact, index) in contacts"
               :key="index"
-              @click="selectContact(user)"
-              :class="{ selected: isSelected(user) }"
+              @click="selectContact(contact)"
+              :class="{ selected: isSelected(contact) }"
             >
               <font-awesome-icon class="icon-user" :icon="['fas', 'circle-user']" />
               {{ contact }}
@@ -191,12 +191,21 @@ export default {
       showSidebarContact: false,
       showContactContainer: false,
 
+      // Tambahkan properti delayed ke dalam data
+      delayed: false,
+
+      // Tambahkan properti afterClickContact ke dalam data
+      afterClickContact: null,
+
       // Tambahkan properti Login ke dalam data
       loggedInUser: null,
       isLoggedIn: false,
 
       // Tambahkan properti contactList ke dalam data
-      contactList: []
+      contactList: [],
+
+      // Tambahkan properti userData ke dalam data
+      userData: null
     }
   },
 
@@ -282,6 +291,8 @@ export default {
     },
 
     selectContact(contact) {
+      console.log('Contact selected:', contact)
+
       const index = this.selectedContacts.findIndex((selected) => selected.id == contact.id)
       if (index > -1) {
         // Kontak belum dipilih, tambahkan ke selectedContacts
@@ -305,10 +316,13 @@ export default {
     },
 
     getContactName(contactId) {
-      if (userData.contacts) {
-        const contacts = Object.values(userData.contacts)
-        if (contacts.length > 0 && contacts[0].name) {
-          return contacts[0].name
+      if (this.userData && this.userData.contacts) {
+        const contacts = Object.values(this.userData.contacts)
+        console.log(contacts) // Periksa apakah contacts memiliki nilai yang benar
+
+        const contact = contacts.find((c) => c.id === contactId)
+        if (contact && contact.name) {
+          return contact.name
         }
       }
       return null
