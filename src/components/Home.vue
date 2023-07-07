@@ -72,11 +72,12 @@
               v-for="(contact, index) in contacts"
               :key="index"
               @click="selectContact(contact)"
-              :class="{ selected: isSelected(contact) }"
+              :class="{ selected: isSelected(contacts.id) && !isDuplicateChat(contact.id) }"
             >
               <font-awesome-icon class="icon-user" :icon="['fas', 'circle-user']" />
-              {{ contact }}
+              <span>{{ contact.name }}</span>
             </div>
+
             <div v-if="contacts.length === 0" id="contact-message">Not have a contact friend</div>
           </div>
         </div>
@@ -98,7 +99,7 @@
         <div class="list-contact-name">
           <div v-for="(contact, index) in contacts" :key="index">
             <font-awesome-icon class="icon-user" :icon="['fas', 'circle-user']" />
-            <span>{{ contact }}</span>
+            <span>{{ contact.name }}</span>
           </div>
           <div class="alert-no-contacts" v-if="contacts.length === 0" id="contact-message">
             Not have a contact friend
@@ -243,7 +244,7 @@ export default {
               const contactName = contact.name
 
               if (contactName) {
-                contacts.value.push(contactName)
+                contacts.value.push({ id: contactKey, name: contactName })
               }
             }
           }
@@ -290,40 +291,38 @@ export default {
       this.showContactContainer = !this.showContactContainer
     },
 
-    selectContact(contact) {
-      console.log('Contact selected:', contact)
+    isSelected(contact) {
+      return contact && this.selectedContacts.some((selected) => selected.id == contact.id)
+    },
 
+    selectContact(contact) {
       const index = this.selectedContacts.findIndex((selected) => selected.id == contact.id)
-      if (index > -1) {
-        // Kontak belum dipilih, tambahkan ke selectedContacts
-        this.selectedContacts.push(contact)
-      } else {
+
+      // kondisi Jika index === -1, berarti kontak belum ada dalam selectedContacts
+      if (index === -1) {
+        // Tambahkan kontak baru ke selectedContacts
+        this.selectedContacts.push({ id: contact.id, name: contact.name })
+
         // Tambahkan chat baru untuk kontak
         const newChat = {
-          // Informasi chat lainnya
-          contactId: contact.id
+          contactId: contact.id,
+          contactName: contact.name
         }
+
         this.selectedChats.push(newChat)
+
+        // Tandai kontak sebagai sudah dipilih
+        contact.isSelected = true
+      } else {
+        // Jika kontak sudah ada, berikan pesan atau lakukan tindakan lain
+        console.log('Kontak sudah dipilih sebelumnya')
       }
-
-      // Simpan informasi kontak ke dalam localStorage
-      localStorage.setItem('selectedContact', JSON.stringify(contact))
-      localStorage.setItem('selectedContactName', JSON.stringify(this.getContactName(contact.id)))
     },
 
-    isSelected(contact) {
-      return this.selectedContacts.some((selected) => selected.id == contact.id)
-    },
-
-    getContactName(contactId) {
-      if (this.userData && this.userData.contacts) {
-        const contacts = Object.values(this.userData.contacts)
-        console.log(contacts) // Periksa apakah contacts memiliki nilai yang benar
-
-        const contact = contacts.find((c) => c.id === contactId)
-        if (contact && contact.name) {
-          return contact.name
-        }
+    getContactName(contactName) {
+      const contact = this.contacts.find((c) => c.id === contactName)
+      if (contact && contact.name) {
+        return contact.name
       }
       return null
     },
