@@ -51,7 +51,9 @@
 
         <div class="contact-chat" v-for="chat in selectedChats" :key="chat.contactId">
           <font-awesome-icon class="icon-user" :icon="['fas', 'circle-user']" />
-          <span>{{ getContactName(chat.contactId) }}</span>
+          <a href="#" @click="toggleShowChatArea(chat)">
+            <span>{{ getContactName(chat.contactId) }}</span>
+          </a>
         </div>
       </div>
 
@@ -72,7 +74,7 @@
               v-for="(contact, index) in contacts"
               :key="index"
               @click="selectContact(contact)"
-              :class="{ selected: isSelected(contacts.id) && !isDuplicateChat(contact.id) }"
+              :class="{ selected: isSelected(contacts.id) }"
             >
               <font-awesome-icon class="icon-user" :icon="['fas', 'circle-user']" />
               <span>{{ contact.name }}</span>
@@ -97,7 +99,7 @@
           <font-awesome-icon :icon="['fas', 'search']" />
         </span>
         <div class="list-contact-name">
-          <div v-for="(contact, index) in contacts" :key="index">
+          <div class="divcontact" v-for="(contact, index) in contacts" :key="index">
             <font-awesome-icon class="icon-user" :icon="['fas', 'circle-user']" />
             <span>{{ contact.name }}</span>
           </div>
@@ -129,18 +131,29 @@
         </form>
       </div>
     </div>
-    <div class="content-chat">
+    <div v-if="!showChatArea" class="content-chat">
       <div class="chat-area">
         <img :class="['fade-in', { delayed: delayed }]" src="../assets/img/bg-img.png" />
       </div>
-      <div v-if="afterClickContact" class="message-area">
-        <div class="navbar"></div>
-        <div class="chat-area"></div>
+    </div>
+
+    <div v-if="showChatArea && selectedContactId" class="content-chat">
+      <div class="message-area">
+        <div class="contactt-chat">
+          <font-awesome-icon class="icon-user" :icon="['fas', 'circle-user']" />
+          <span>{{ getContactName(selectedContactId) }}</span>
+        </div>
+        <div class="message-chat"></div>
       </div>
     </div>
   </div>
 </template>
 
+<!-- 
+  v-for="chat in selectedChats" :key="chat.contactId"
+  
+   
+-->
 <script>
 // Import FontAwesome
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -155,8 +168,7 @@ import {
   query,
   orderByChild,
   equalTo,
-  set,
-  onValue
+  set
 } from 'firebase/database'
 
 import { ref, onMounted } from 'vue'
@@ -166,6 +178,7 @@ library.add(faSearch)
 
 // Import useAuthStore from auth
 import { useAuthStore } from '../assets/js/auth'
+import { onBeforeRouteLeave } from 'vue-router'
 
 export default {
   name: 'Home',
@@ -181,6 +194,7 @@ export default {
 
       // Tambahkan properti contact ke dalam data
       selectedContact: null,
+      selectedContactId: null,
       selectedContacts: [],
 
       // Tambahkan properti selectedChats ke dalam data
@@ -191,6 +205,7 @@ export default {
       showChatContainer: false,
       showSidebarContact: false,
       showContactContainer: false,
+      showChatArea: false,
 
       // Tambahkan properti delayed ke dalam data
       delayed: false,
@@ -201,6 +216,9 @@ export default {
       // Tambahkan properti Login ke dalam data
       loggedInUser: null,
       isLoggedIn: false,
+
+      // Tambahkan variable isDataSaved ke dalam data
+      isDataSaved: false,
 
       // Tambahkan properti contactList ke dalam data
       contactList: [],
@@ -215,6 +233,12 @@ export default {
     const storedContact = localStorage.getItem('selectedContact')
     if (storedContact) {
       this.selectedContact = JSON.parse(storedContact)
+    }
+
+    // Mengambil selectedChats dari localStorage saat komponen dibuat
+    const savedSelectedChats = localStorage.getItem('selectedChats')
+    if (savedSelectedChats) {
+      this.selectedChats = JSON.parse(savedSelectedChats)
     }
   },
 
@@ -283,6 +307,11 @@ export default {
       this.showSidebarContact = !this.showSidebarContact
     },
 
+    toggleshowChatArea(chat) {
+      this.showChatArea = true
+      this.selectedContactId = contactId
+    },
+
     toggleContactContainer() {
       this.showContactContainer = !this.showContactContainer
     },
@@ -317,6 +346,10 @@ export default {
         // Jika kontak sudah ada, berikan pesan atau lakukan tindakan lain
         console.log('Kontak sudah dipilih sebelumnya')
       }
+
+      // Menyimpan selectedChats ke localStorage setelah perubahan
+      localStorage.setItem('selectedChats', JSON.stringify(this.selectedChats))
+      console.log('Data telah tersimpan')
     },
 
     getContactName(contactName) {
@@ -442,8 +475,25 @@ export default {
       next('/login')
     } else {
       // Jika sudah login, izinkan akses ke halaman Home
-      next()
+      next((vm) => {
+        // Memuat data chat dari penyimpanan lokal
+        const savedSelectedChats = localStorage.getItem('selectedChats')
+
+        if (savedSelectedChats) {
+          vm.selectedChats = JSON.parse(savedSelectedChats)
+          vm.isDataSaved = true
+        } else {
+          vm.isDataSaved = false
+        }
+      })
     }
+  },
+
+  BeforeRouteLeave(to, from, next) {
+    // Simpan data chat-list yang sudah ada di laman chat
+    localStorage.setItem('selectedChats', JSON.stringify(this.selectedChats))
+    this.isDataSaved = true
+    next()
   }
 }
 </script>
@@ -506,7 +556,7 @@ export default {
     }
 
     .user-container {
-      width: 25%;
+      width: 50vh;
       height: 40%;
       margin-left: 10px;
       margin-top: 350px;
@@ -585,6 +635,8 @@ export default {
       width: 350px;
       padding: 20px;
       background: #fff;
+      border-style: solid;
+      border-color: #262625;
 
       .judul {
         display: flex;
@@ -627,23 +679,33 @@ export default {
         margin-top: 20px;
 
         .icon-user {
-          font-size: 32px;
+          font-size: 30px;
           margin-right: 8px;
+        }
+
+        a {
+          text-decoration: none;
+          color: #000000;
         }
       }
 
       .list-contact-name {
-        align-items: center;
+        display: flex;
+        flex-direction: column;
+
+        .divcontact {
+          display: flex;
+          align-items: center;
+        }
 
         .icon-user {
-          margin-top: 15px;
-          font-size: 20px;
+          margin-top: 20px;
+          font-size: 30px;
           margin-right: 8px;
         }
 
         span {
-          font-family: 'Raleway', sans-serif;
-          font-size: 18px;
+          margin-top: 20px;
         }
 
         .alert-no-contacts {
@@ -671,7 +733,7 @@ export default {
     }
 
     .addChat-container {
-      width: 25%;
+      width: 50vh;
       height: 80%;
       margin-left: 280px;
       margin-top: 60px;
@@ -702,7 +764,6 @@ export default {
       }
 
       .search-icon {
-        position: absolute;
         margin-top: 3px;
         margin-left: -55px;
       }
@@ -768,6 +829,28 @@ export default {
         width: 180px;
         max-width: 180%;
         max-height: 100%;
+      }
+    }
+
+    .message-area {
+      width: 100%;
+      height: 500px;
+
+      .contactt-chat {
+        height: 60px;
+        background-color: #2e2e2e;
+
+        .icon-user {
+          margin: 15px;
+          font-size: 30px;
+          color: #c0c0c0;
+        }
+      }
+
+      .message-chat {
+        width: 950px;
+        height: 557px;
+        background-color: #ffffff;
       }
     }
   }
